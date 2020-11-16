@@ -1,0 +1,67 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                            <table class="table">
+                                 <thead>
+                                     <tr>
+                                         <th>
+                                             <form action="/lms/bookinstance_edit/" method="POST" class="online-form"> {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="add">
+                                                <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book_list.BookID }} >
+                                                <input type="number" name="number" id="number" required>
+                                                <button type="submit" class="form-control" style="float: Left;" >Add book instance</button>
+                                             </form>
+                                         </th>
+                                     </tr>
+                                 </thead>
+                                 <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:20px;">BookID: {{book_list.BookID}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Title: {{book_list.Title}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Language: {{book_list.Language}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Author: {{book_list.Author}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Publisher: {{book_list.Publisher}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">PublishDate: {{book_list.PublishDate}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Waiting list count: {{book_list.Waiting}}</a> <br>
+                            <table class="table">
+                                <a style="color:white;text-align: left;font-size:36px;">Book Instance:</a> <br>
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BookInstanceID</th>
+                                        <th>Status</th>
+                                        <th>Edit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for bookinstance in bookinstance_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ bookinstance.BookInstanceID }}</td>
+                                        <td>{{ bookinstance.Status }}</td>
+                                        <td>
+                                           <form action="/lms/bookinstance_edit/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="view" >
+                                                <input type="text" name="BookInstanceID" id="BookInstanceID" style="display:none;" value = {{ bookinstance.BookInstanceID }} >
+                                                <button type="submit" class="form-control" id="submit"> Edit </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+               </div>
+          </div>
+
+{% endblock %}
+

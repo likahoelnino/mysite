@@ -1,0 +1,69 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                         <div class="home-info">
+
+            <h1>Check In Books</h1>
+              <form action="/lms/check_in/" method="POST" class="online-form"> {% csrf_token %}
+                 <a style="color:white;text-align: left;font-size:24px;">Scan barcode: </a>
+                  <br><br>
+                    <input type="text" name="action" id="action" style="display:none;" value ="add" >
+                    <input type="text" name="book_scanned_list" id="book_scanned_list" style="display:none;" value = {{ book_scanned_list }}>
+                    <input type="text" name="book_id_scan" id="book_id_scan" class="form-control" placeholder="scan book barcode" required>
+                    <button type="submit" class="form-control" id="add"> Add </button>
+                    <br><br>
+              </form>
+            <script>
+                document.querySelector('#book_id_scan').focus();
+            </script>
+
+<table id="result" class="table">
+    <thead>
+        <tr style="text-align: left; color: white;">
+            <th>BookInstanceID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th>Reserved</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for bookinstance in bookinstance_list %}
+        <tr style="text-align: left; color: white;">
+            <td>{{ bookinstance.BookInstanceID }}</td>
+            <td>{{ bookinstance.BookID.Title }}</td>
+            <td>{{ bookinstance.BookID.Author }}</td>
+            <td>{{ bookinstance.Status }}</td>
+            <td>{{ bookinstance.BookID.ReserveUser }}</td>
+            <td>
+                <form action="/lms/check_in/" method="POST" > {% csrf_token %}
+                <input type="text" name="action" id="action" style="display:none;" value ="del" >
+                <input type="text" name="book_id_del" id="book_id_del" style="display:none;" value = {{ bookinstance.BookInstanceID }} >
+                <input type="text" name="book_scanned_list" id="book_scanned_list" style="display:none;" value = {{ book_scanned_list }} >
+                <button type="submit" class="form-control" id="del"> Delete </button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+             <form action="/lms/maintenance/" method="POST" class="online-form"> {% csrf_token %}
+                    <input type="text" name="action" id="action" style="display:none;" value ="check_in" >
+                    <input type="text" name="book_scanned_list" id="book_scanned_list" style="display:none;" value = {{ book_scanned_list }} >
+                    <button type="submit" class="form-control" id="check_in"> Check In </button>
+             </form>
+
+                    </div>
+                  </div>
+               </div>
+             </div>
+
+{% endblock %}

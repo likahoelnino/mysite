@@ -1,0 +1,79 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                        <table class="table">
+                             <thead>
+                                 <tr>
+                                     <th>
+                                         <form action="/lms/book_new/" method="POST" class="online-form"> {% csrf_token %}
+                                            <input type="text" name="action" id="action" style="display:none;" value ="view" >
+                                            <button type="submit" class="form-control" style="float: Left;" >New book</button>
+                                         </form>
+                                     </th>
+                                 </tr>
+                             </thead>
+                             <tbody></tbody>
+                        </table>
+                        </div>
+                              <div>
+                                <form action="/lms/book_mgt/" method="POST" class="online-form"> {% csrf_token %}
+                                    <input type="text" name="search" id="search" class="form-control" placeholder="BookID, Title, Author, Publisher" required>
+                                    <button type="submit" class="form-control">Search</button>
+                                </form>
+                              </div>
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:36px;">Books:</a> <br>
+                            <table id="result" class="table">
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BookID</th>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Publisher</th>
+                                        <th>Edit</th>
+                                        <th>View book instance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for book in book_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ book.BookID }}</td>
+                                        <td>{{ book.Title }}</td>
+                                        <td>{{ book.Author }}</td>
+                                        <td>{{ book.Publisher }}</td>
+                                        <td>
+                                           <form action="/lms/book_edit/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="view" >
+                                                <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book.BookID }} >
+                                                <button type="submit" class="form-control" id="submit"> Edit </button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                           <form action="/lms/bookinstance_mgt/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="view" >
+                                                <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book.BookID }} >
+                                                <button type="submit" class="form-control" id="submit"> View </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr style="text-align: right; color: white;">
+                                        <td>No record.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+               </div>
+          </div>
+
+{% endblock %}
+

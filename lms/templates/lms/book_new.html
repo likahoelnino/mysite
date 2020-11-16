@@ -1,0 +1,53 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                            <form action="" method="POST" > {% csrf_token %}
+                                <a style="color:white;text-align: left;font-size:28px;">New book template:</a> <br>
+                                <div style="display:flex; flex-direction: row;">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.BookID.label}}</label>
+                                    {{form.BookID}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Title.label}}</label>
+                                    {{form.Title}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Language.label}}</label>
+                                    {{form.Language}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Author.label}}</label>
+                                    {{form.Author}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Publisher.label}}</label>
+                                    {{form.Publisher}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.PublishDate.label}}</label>
+                                    {{form.PublishDate}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.ISBN.label}}</label>
+                                    {{form.ISBN}}
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label class="form-group col-md-4" style="text-align: left; color: white;">Number of books:</label>
+                                    <input type="number" name="number" id="number" min="1" max="99" required>
+                                </div>
+                                <input type="text" name="action" id="action" style="display:none;" value ="submit" >
+                                <button type="submit" class="form-control" id="submit"> Submit </button>
+                            </form>
+                        </div>
+                    </div>
+               </div>
+          </div>
+
+{% endblock %}
+

@@ -1,0 +1,54 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+    $('#result').DataTable();
+});
+</script>
+
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:36px;">User Management:</a> <br>
+                            <table id="result" class="table">
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>User ID</th>
+                                        <th>User name</th>
+                                        <th>User type</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for user in user_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ user.user_id }}</td>
+                                        <td>{{ user.user_name }}</td>
+                                        <td>{{ user.user_type }}</td>
+                                        <td>{{ user.status }}</td>
+                                        <td>
+                                           <form action="/lms/user_mgt/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="edit" >
+                                                <button type="submit" class="form-control" id="edit"> Edit </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+               </div>
+          </div>
+
+{% endblock %}
+

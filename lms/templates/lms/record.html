@@ -1,0 +1,64 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:36px;">Current reserved books:</a> <br>
+                            <table class="table">
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>ReserveID</th>
+                                        <th>BookID</th>
+                                        <th>ReserveDate</th>
+                                        <th>Waiting list</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for reserve in reserve_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ reserve.ReserveID }}</td>
+                                        <td>{{ reserve.BookID_id }}</td>
+                                        <td>{{ reserve.ReserveDate }}</td>
+                                        <td>{{ reserve.Waiting }}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:36px;">Borrow Record:</a> <br>
+                            <table class="table">
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BorrowID</th>
+                                        <th>BookInstanceID</th>
+                                        <th>BorrowDate</th>
+                                        <th>DueDate</th>
+                                        <th>ReturnDate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for borrow in borrow_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ borrow.BorrowID }}</td>
+                                        <td>{{ borrow.BookInstanceID_id }}</td>
+                                        <td>{{ borrow.BorrowDate }}</td>
+                                        <td>{{ borrow.DueDate }}</td>
+                                        <td>{{ borrow.ReturnDate }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+               </div>
+          </div>
+
+{% endblock %}
+

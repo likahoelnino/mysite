@@ -1,0 +1,64 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                            <table class="table">
+                                <a style="color:white;text-align: left;font-size:36px;">Book maintenance:</a> <br>
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BookInstanceID</th>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                        <th>Pass</th>
+                                    </tr>
+                                </thead>
+                                <form action="/lms/maintenance/" id="maint" method="POST" onsubmit="return myfunction()"> {% csrf_token %}
+                                <tbody>
+                                {% for bookinstance in bookinstance_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ bookinstance.BookInstanceID }}</td>
+                                        <td>{{ bookinstance.BookID.Title }}</td>
+                                        <td>{{ bookinstance.Status }}</td>
+                                        <td>
+                                            {% if check %}
+                                            <input type="checkbox" name="list" value = {{ bookinstance.BookInstanceID }} checked>
+                                            {% else %}
+                                            <input type="checkbox" name="list" value = {{ bookinstance.BookInstanceID }}>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <input type="text" name="book_checked" id="book_checked" style="display:none;" >
+                            <input type="text" name="action" id="action" style="display:none;" value ="release" >
+                            <button type="submit" class="form-control" id="submit" > Comfirm </button>
+                            </form>
+                        </div>
+
+                    </div>
+               </div>
+          </div>
+
+
+<script>
+    function myfunction() {
+    var checkboxes = document.getElementsByName("list");
+    var x = [];
+        for (var i= 0; i<checkboxes.length;i++){
+            if (checkboxes[i].checked === true){
+                x.push(checkboxes[i].value);
+            }
+        };
+    document.getElementById("book_checked").value = x;
+    }
+</script>
+
+
+{% endblock %}
+
