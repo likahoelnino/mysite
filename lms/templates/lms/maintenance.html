@@ -2,6 +2,7 @@
 {% extends 'lms/base.html' %}
 
 {% block content %}
+{% if user.is_staff %}
 
           <div class="container">
                <div class="row">
@@ -59,6 +60,6 @@
     }
 </script>
 
-
+{% endif %}
 {% endblock %}
 

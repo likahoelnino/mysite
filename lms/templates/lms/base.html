@@ -58,11 +58,12 @@
                <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
                          <li><a href="{% url 'index' %}" class="smoothScroll">Search</a></li>
-                         <li><a href="{% url 'book_mgt' %}" class="smoothScroll">Book</a></li>
-                         <li><a href="{% url 'maintenance' %}" class="smoothScroll">Maintenance</a></li>
                          <li><a href="{% url 'record' %}" class="smoothScroll">Record</a></li>
-                         <li><a href="#admin" class="smoothScroll">Admin</a></li>
+                         {% if user.is_staff %}
+                         <li><a href="{% url 'book_mgt' %}" class="smoothScroll">Book</a></li>
                          <li><a href="{% url 'check_in' %}" class="smoothScroll">Check-in</a></li>
+                         <li><a href="{% url 'maintenance' %}" class="smoothScroll">Maintenance</a></li>
+                         {% endif %}
                          {% if user.is_authenticated %}
                          <li><a href="{% url 'logout' %}" class="smoothScroll">Logout</a></li>
                          {% else %}

@@ -3,20 +3,51 @@
 
 {% block content %}
 
-
           <div class="container">
-              <div class="col-md-offset-3 col-md-6 col-sm-12">
-                <h1>Search here</h1>
-                              <div>
-                                <form action="/lms/search_result/" method="POST" class="online-form"> {% csrf_token %}
-                                    <input type="text" name="search" id="search" class="form-control" placeholder="Title, Author, Publisher" required>
-                                    <button type="submit" class="form-control">Search</button>
-                                </form>
-                              </div>
-                  </div>
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <h1>Search here</h1>
+                          <div>
+                            <form action="/lms/" method="POST" class="online-form"> {% csrf_token %}
+                                <input type="text" name="search" id="search" class="form-control" placeholder="Title, Author, Publisher" required>
+                                <button type="submit" class="form-control">Search</button>
+                            </form>
+                          </div>
+                        <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:36px;">{{ title }}</a> <br>
+                            <table id="result" class="table">
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BookID</th>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Publisher</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for book in book_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ book.BookID }}</td>
+                                        <td>{{ book.Title }}</td>
+                                        <td>{{ book.Author }}</td>
+                                        <td>{{ book.Publisher }}</td>
+                                        <td>
+                                           <form action="/lms/search_result_details/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="action" id="action" style="display:none;" value ="view" >
+                                                <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book.BookID }} >
+                                                <button type="submit" class="form-control" id="view"> View </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+               </div>
           </div>
 
-
 {% endblock %}
-
 
