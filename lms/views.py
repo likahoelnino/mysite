@@ -157,28 +157,21 @@ def book_new(request):
                 number = request.POST['number']
                 if form.is_valid():
                     f = form.save(commit=False)
-                    try:
-                        f.BookID = form.clean_book_id()
-                        book_selected = f.BookID
-                        f.save()
-                        FK = Book.objects.get(BookID=book_selected)
-                        for i in range(int(number)):
-                            x = str(i + 1).zfill(2)
-                            BookInstance.objects.create(
-                                BookID=FK,
-                                Status='Available',
-                                BookInstanceID=book_selected + "." + x
-                            )
-                        book_list = Book.objects.all()
-                        return render(request, 'lms/book_mgt.html', {'book_list': book_list})
-                    except ValidationError as err:
-                        msg = err.message
-                        context = {
-                            'msg': msg
-                        }
-                        return render(request, 'lms/notification.html', context)
+                    f.BookID = form.cleaned_data.get("BookID")
+                    book_selected = f.BookID
+                    f.save()
+                    FK = Book.objects.get(BookID=book_selected)
+                    for i in range(int(number)):
+                        x = str(i + 1).zfill(2)
+                        BookInstance.objects.create(
+                            BookID=FK,
+                            Status='Available',
+                            BookInstanceID=book_selected + "." + x
+                        )
+                    book_list = Book.objects.all()
+                    return render(request, 'lms/book_mgt.html', {'book_list': book_list})
                 else:
-                    msg = form.errors()
+                    msg = form.errors
                     context = {
                         'msg': msg
                     }
@@ -208,13 +201,18 @@ def bookinstance_edit(request):
                     'msg': 'Total number of books cannot be larger than 99.'
                 }
                 return render(request, 'lms/notification.html', context)
+            elif int(number) <= 0:
+                context = {
+                    'msg': 'Number of new books cannot be less than 1.'
+                }
+                return render(request, 'lms/notification.html', context)
             else:
                 FK = Book.objects.get(BookID=book_selected)
                 for i in range(int(number)):
                     x = str(i + 1 + number_exist).zfill(2)
                     BookInstance.objects.create(
                         BookID=FK,
-                        Status='Available',
+                        Status='Maintenance',
                         BookInstanceID=book_selected + "." + x
                     )
                 book_list = Book.objects.get(BookID=book_selected)

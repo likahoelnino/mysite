@@ -27,7 +27,7 @@ class BookInstanceModelForm(forms.ModelForm):
 
 
 class BookModelForm(forms.ModelForm):
-    def clean_book_id(self):
+    def clean_BookID(self):
         data = self.cleaned_data['BookID']
         patten = re.compile(r'[A-Z]\d{2,9}')
         if not(patten.match(data)):
