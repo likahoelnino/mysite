@@ -240,6 +240,8 @@ def bookinstance_edit(request):
                         'bookinstance_list': bookinstance_list,
                     }
                     return render(request, 'lms/bookinstance_mgt.html', context)
+                else:
+                    return render(request, 'lms/notification.html', {'msg': form.errors})
 
 
 def check_in(request):
