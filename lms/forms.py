@@ -8,17 +8,18 @@ class BookInstanceModelForm(forms.ModelForm):
     def clean_Status(self):
         data = self.cleaned_data['Status']
         initial_data = self.initial['Status']
-        if initial_data == 'Available':
-            if data == 'On Loan':
-                raise ValidationError("Invalid Status (Current status: Available).")
-        elif initial_data == 'On Loan':
-            raise ValidationError("Invalid Status (Current status: On Loan).")
-        elif initial_data == 'Maintenance':
-            if data != 'Suspended':
-                raise ValidationError("Invalid Status (Current status: Maintenance).")
-        elif initial_data == 'Suspended':
-            if data == 'On Loan':
-                raise ValidationError("Invalid Status (Current status: Suspended).")
+        if self.has_changed():
+            if initial_data == 'Available':
+                if data == 'On Loan':
+                    raise ValidationError("Invalid Status (Current status: Available).")
+            elif initial_data == 'On Loan':
+                raise ValidationError("Invalid Status (Current status: On Loan).")
+            elif initial_data == 'Maintenance':
+                if data != 'Suspended':
+                    raise ValidationError("Invalid Status (Current status: Maintenance).")
+            elif initial_data == 'Suspended':
+                if data == 'On Loan':
+                    raise ValidationError("Invalid Status (Current status: Suspended).")
         return data
 
     class Meta:
