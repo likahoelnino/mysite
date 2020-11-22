@@ -30,12 +30,14 @@
                             <a style="color:white;text-align: left;font-size:20px;">Author: {{book_list.Author}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">Publisher: {{book_list.Publisher}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">PublishDate: {{book_list.PublishDate}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">ISBN: {{book_list.ISBN}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">Waiting list count: {{book_list.Waiting}}</a> <br>
                             <table id="result" class="table">
                                 <thead>
                                     <tr style="text-align: left; color: white;">
                                         <th>BookInstanceID</th>
                                         <th>Status</th>
+                                        <th>DueDate</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,6 +45,7 @@
                                     <tr style="text-align: left; color: white;">
                                         <td>{{ bookinstance.BookInstanceID }}</td>
                                         <td>{{ bookinstance.Status }}</td>
+                                        <td>{{ bookinstance.DueDate }}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>

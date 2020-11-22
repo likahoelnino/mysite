@@ -11,14 +11,16 @@
                             <table class="table">
                                  <thead>
                                      <tr>
-                                         <th>
-                                             <form action="/lms/bookinstance_edit/" method="POST" class="online-form"> {% csrf_token %}
-                                                <input type="text" name="action" id="action" style="display:none;" value ="add">
-                                                <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book_list.BookID }} >
-                                                <input type="number" name="number" id="number" required>
-                                                <button type="submit" class="form-control" style="float: Left;" >Add book instance</button>
-                                             </form>
-                                         </th>
+                                         <form action="/lms/bookinstance_edit/" method="POST"> {% csrf_token %}
+                                            <input type="text" name="action" id="action" style="display:none;" value ="add">
+                                            <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ book_list.BookID }} >
+                                            <th>
+                                                <input type="number" name="number" id="number" min="1" max="99" class="form-control col-md-8" placeholder="New count" required>
+                                            </th>
+                                            <th>
+                                                <button type="submit" class="form-control col-md-4" style="float: Left;" >Add book instance</button>
+                                            </th>
+                                         </form>
                                      </tr>
                                  </thead>
                                  <tbody></tbody>
@@ -31,6 +33,7 @@
                             <a style="color:white;text-align: left;font-size:20px;">Author: {{book_list.Author}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">Publisher: {{book_list.Publisher}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">PublishDate: {{book_list.PublishDate}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">ISBN: {{book_list.ISBN}}</a> <br>
                             <a style="color:white;text-align: left;font-size:20px;">Waiting list count: {{book_list.Waiting}}</a> <br>
                             <table class="table">
                                 <a style="color:white;text-align: left;font-size:36px;">Book Instance:</a> <br>
@@ -38,6 +41,8 @@
                                     <tr style="text-align: left; color: white;">
                                         <th>BookInstanceID</th>
                                         <th>Status</th>
+                                        <th>DueDate</th>
+                                        <th>Username</th>
                                         <th>Edit</th>
                                     </tr>
                                 </thead>
@@ -46,6 +51,8 @@
                                     <tr style="text-align: left; color: white;">
                                         <td>{{ bookinstance.BookInstanceID }}</td>
                                         <td>{{ bookinstance.Status }}</td>
+                                        <td>{{ bookinstance.DueDate }}</td>
+                                        <td>{{ bookinstance.Username}}</td>
                                         <td>
                                            <form action="/lms/bookinstance_edit/" method="POST" > {% csrf_token %}
                                                 <input type="text" name="action" id="action" style="display:none;" value ="view" >

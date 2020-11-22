@@ -30,7 +30,6 @@
             <th>Title</th>
             <th>Author</th>
             <th>Status</th>
-            <th>Reserved</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -41,7 +40,6 @@
             <td>{{ bookinstance.BookID.Title }}</td>
             <td>{{ bookinstance.BookID.Author }}</td>
             <td>{{ bookinstance.Status }}</td>
-            <td>{{ bookinstance.BookID.ReserveUser }}</td>
             <td>
                 <form action="/lms/check_in/" method="POST" > {% csrf_token %}
                 <input type="text" name="action" id="action" style="display:none;" value ="del" >

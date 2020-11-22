@@ -29,7 +29,8 @@ class Book(models.Model):
         q1 = Q(BookID=self.BookID)
         q2 = Q(ReleaseDate__isnull=True)
         if Reserve.objects.filter(q1 & q2).count() > 0:
-            return Reserve.objects.filter(q1 & q2).values_list()[:1].get()[3]
+            y = Reserve.objects.filter(q1 & q2).values_list()[:1].get()[3]
+            return User.objects.filter(id = y).values_list("username", flat=True)[0]
         else:
             return ""
 
@@ -47,6 +48,23 @@ class BookInstance(models.Model):
     def __str__(self):
         return f'{self.BookInstanceID} ({self.BookID.Title})'
 
+    def DueDate(self):
+        q1 = Q(BookInstanceID = self.BookInstanceID)
+        q2 = Q(ReturnDate__isnull=True)
+        y = BorrowRecord.objects.filter(q1 & q2).values_list('DueDate', flat=True)
+        if self.Status == "On Loan":
+            return y[0]
+        else:
+            return ""
+
+    def Username(self):
+        q1 = Q(BookInstanceID = self.BookInstanceID)
+        q2 = Q(ReturnDate__isnull=True)
+        x = BorrowRecord.objects.filter(q1 & q2).values_list('UserID__username', flat=True)
+        if self.Status == "On Loan":
+            return x[0]
+        else:
+            return ""
 
 class BorrowRecord(models.Model):
     BorrowID = models.AutoField(primary_key=True)

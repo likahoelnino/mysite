@@ -1,0 +1,47 @@
+
+{% extends 'lms/base.html' %}
+
+{% block content %}
+{% if user.is_staff %}
+
+          <div class="container">
+               <div class="row">
+                    <div class="col-md-offset-3 col-md-6 col-sm-12">
+                        <div class="home-info">
+                                <input type="date" id="datepicker" onchange="changedate(event);" value={{ selected_date }}> <br>
+
+                            <table class="table">
+                                <a style="color:white;text-align: left;font-size:36px;">Picking list:</a> <br>
+                                <thead>
+                                    <tr style="text-align: left; color: white;">
+                                        <th>BorrowID</th>
+                                        <th>BookInstanceID</th>
+                                        <th>Username</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for borrow in borrow_list %}
+                                    <tr style="text-align: left; color: white;">
+                                        <td>{{ borrow.BorrowID }}</td>
+                                        <td>{{ borrow.BookInstanceID_id }}</td>
+                                        <td>{{ borrow.UserID }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+               </div>
+          </div>
+
+<script>
+
+    function changedate(e){
+        window.location.href = ('/lms/picking_list/' + e.target.value);
+    }
+
+</script>
+
+{% endif %}
+{% endblock %}
+

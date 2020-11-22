@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 import datetime
 from django.db.models import Count
 from django.core.exceptions import ValidationError
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @csrf_exempt
 def index(request):
@@ -40,22 +40,18 @@ def index(request):
 
 
 def search_result_details(request):
-    if request.method == 'POST':
-        book_selected = request.POST['BookID']
-        book_list = Book.objects.get(BookID=book_selected)
-        bookinstance_list = BookInstance.objects.filter(BookID=book_selected).values('BookInstanceID', 'BookID',
-                                                                                     'Status', 'BookID__Title',
-                                                                                     'BookID__Author',
-                                                                                     'BookID__Publisher')
-        context = {
-            'book_list': book_list,
-            'bookinstance_list': bookinstance_list,
-        }
-        return render(request, 'lms/search_result_details.html', context)
+    book_selected = request.POST['BookID']
+    book_list = Book.objects.get(BookID=book_selected)
+    bookinstance_list = BookInstance.objects.filter(BookID=book_selected)
+    context = {
+        'book_list': book_list,
+        'bookinstance_list': bookinstance_list,
+    }
+    return render(request, 'lms/search_result_details.html', context)
 
 
 def borrow(request):
-    book_limit = 25
+    book_limit = 10
     borrow_day = 30
     if request.method == 'POST':
         book_selected = request.POST['BookID']
@@ -165,7 +161,7 @@ def book_new(request):
                         x = str(i + 1).zfill(2)
                         BookInstance.objects.create(
                             BookID=FK,
-                            Status='Available',
+                            Status='Maintenance',
                             BookInstanceID=book_selected + "." + x
                         )
                     book_list = Book.objects.all()
@@ -327,22 +323,79 @@ def maintenance(request):
                         BookInstance.objects.filter(q3).update(
                             Status="Available"
                         )
-            return render(request, 'lms/index.html')
+            bookinstance_list = BookInstance.objects.filter(Status='Maintenance')
+            context = {'bookinstance_list': bookinstance_list}
+            return render(request, 'lms/maintenance.html', context)
     else:
         bookinstance_list = BookInstance.objects.filter(Status='Maintenance')
         context = {'bookinstance_list': bookinstance_list}
         return render(request, 'lms/maintenance.html', context)
 
-
 def record(request):
     q1 = Q(UserID=request.user)
     q2 = Q(ReleaseDate__isnull=True)
-    reserve_list = Reserve.objects.filter(q1 & q2)
-    borrow_list = BorrowRecord.objects.filter(q1)
+    q3 = Q(ReturnDate__isnull=True)
+    reserve_list = Reserve.objects.filter(q1 & q2).order_by("-ReserveID")
+    borrow_list = BorrowRecord.objects.filter(q1).order_by("ReturnDate", "-BorrowID")
+    unreturn_list = BorrowRecord.objects.filter(q1 & q3)
+    unreturn_count = unreturn_list.count()
+    reserve_count = reserve_list.count()
+    remain_count = 10 - unreturn_count - reserve_count
     context = {
         'reserve_list': reserve_list,
         'borrow_list': borrow_list,
+        'unreturn_count':unreturn_count,
+        'reserve_count':reserve_count,
+        'remain_count':remain_count,
     }
     return render(request, 'lms/record.html', context)
+
+def reserve_cancel(request):
+    if request.method == 'POST':
+        reservation_selected = request.POST['ReserveID']
+        q1 = Q(ReserveID = reservation_selected)
+        Reserve.objects.filter(q1).update(ReleaseDate = datetime.datetime.now())
+        context = {'msg': 'Reservation is cancelled.'}
+    return render(request, 'lms/notification.html', context)
+
+def extend(request):
+    if request.method == 'POST':
+        borrow_day = 30
+        max_day = 180
+        now = datetime.datetime.now().date()
+        delta = datetime.timedelta(days=borrow_day)
+        new_duedate = now + delta
+        borrow_selected = request.POST['BorrowID']
+        q1 = Q(BorrowID = borrow_selected)
+        borrow_date = BorrowRecord.objects.filter(q1).values_list('BorrowDate', flat=True)[0]
+        old_duedate = BorrowRecord.objects.filter(q1).values_list('DueDate', flat=True)[0]
+        book_selected = BorrowRecord.objects.filter(q1).values_list('BookInstanceID__BookID', flat=True)[0]
+        q2 = Q(BookID = book_selected)
+        q3 = Q(ReleaseDate__isnull = True)
+        if Reserve.objects.filter(q2 & q3).count() > 0:
+            context = {'msg': 'Failed! This book is reserved.'}
+        elif now > old_duedate:
+            context = {'msg': 'Failed! This book is overdue, please return ASAP.'}
+        elif borrow_date + datetime.timedelta(days=max_day) == new_duedate:
+            context = {'msg': 'Failed! Max borrow days reached.'}
+        elif borrow_date + datetime.timedelta(days=max_day) < new_duedate:
+            new_duedate = borrow_date + datetime.timedelta(days=max_day)
+            BorrowRecord.objects.filter(q1).update(DueDate=new_duedate)
+            context = {'msg': 'Due date updated! Max borrow days reached.'}
+        else:
+            BorrowRecord.objects.filter(q1).update(DueDate = new_duedate)
+            context = {'msg': 'Due date updated!'}
+    return render(request, 'lms/notification.html', context)
+
+def picking_list(request, date):
+    if date == "today":
+        selected_date = datetime.datetime.now()
+    else:
+        selected_date = date
+    q1 = Q(BorrowDate = selected_date)
+    borrow_list = BorrowRecord.objects.filter(q1).order_by('UserID')
+    return render(request, 'lms/picking_list.html', {'borrow_list':borrow_list, 'selected_date':selected_date})
+
+
 
 # Create your views here.

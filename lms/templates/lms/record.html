@@ -7,13 +7,19 @@
                <div class="row">
                     <div class="col-md-offset-3 col-md-6 col-sm-12">
                         <div class="home-info">
+                            <a style="color:white;text-align: left;font-size:20px;">UserID: {{user.id}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Username: {{user.username}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Unreturned books: {{ unreturn_count }}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Reserved books: {{ reserve_count}}</a> <br>
+                            <a style="color:white;text-align: left;font-size:20px;">Remaining quota: {{ remain_count }}</a> <br>
+                            <br>
                             <a style="color:white;text-align: left;font-size:36px;">Current reserved books:</a> <br>
                             <table class="table">
                                 <thead>
                                     <tr style="text-align: left; color: white;">
-                                        <th>ReserveID</th>
-                                        <th>BookID</th>
-                                        <th>ReserveDate</th>
+                                        <th>Reserve ID</th>
+                                        <th>Book ID</th>
+                                        <th>Reserve Date</th>
                                         <th>Waiting list</th>
                                         <th>Action</th>
                                     </tr>
@@ -25,7 +31,12 @@
                                         <td>{{ reserve.BookID_id }}</td>
                                         <td>{{ reserve.ReserveDate }}</td>
                                         <td>{{ reserve.Waiting }}</td>
-                                        <td></td>
+                                        <td>
+                                            <form action="/lms/reserve_cancel/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="ReserveID" id="ReserveID" style="display:none;" value = {{ reserve.ReserveID }} >
+                                                <button type="submit" class="form-control" id="submit"> Cancel </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -36,11 +47,12 @@
                             <table class="table">
                                 <thead>
                                     <tr style="text-align: left; color: white;">
-                                        <th>BorrowID</th>
-                                        <th>BookInstanceID</th>
-                                        <th>BorrowDate</th>
-                                        <th>DueDate</th>
-                                        <th>ReturnDate</th>
+                                        <th>Borrow ID</th>
+                                        <th>Book Instance ID</th>
+                                        <th>Borrow Date</th>
+                                        <th>Due Date</th>
+                                        <th>Return Date</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,6 +63,14 @@
                                         <td>{{ borrow.BorrowDate }}</td>
                                         <td>{{ borrow.DueDate }}</td>
                                         <td>{{ borrow.ReturnDate }}</td>
+                                        <td>
+                                            {% if borrow.ReturnDate == None %}
+                                            <form action="/lms/extend/" method="POST" > {% csrf_token %}
+                                                <input type="text" name="BorrowID" id="BorrowID" style="display:none;" value = {{ borrow.BorrowID }} >
+                                                <button type="submit" class="form-control" id="submit"> Extend </button>
+                                            </form>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>

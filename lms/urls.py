@@ -1,5 +1,5 @@
 from django.urls import path
-
+from django.conf.urls import url
 from lms import views
 
 urlpatterns = [
@@ -14,4 +14,7 @@ urlpatterns = [
     path('book_mgt/', views.book_mgt, name='book_mgt'),
     path('book_new/', views.book_new, name='book_new'),
     path('book_edit/', views.book_edit, name='book_edit'),
+    path('reserve_cancel/', views.reserve_cancel, name='reserve_cancel'),
+    path('extend/', views.extend, name='extend'),
+    path('picking_list/<str:date>/', views.picking_list, name='picking_list'),
 ]
