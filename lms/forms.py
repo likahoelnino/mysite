@@ -18,7 +18,7 @@ class BookInstanceModelForm(forms.ModelForm):
                 if data != 'Suspended':
                     raise ValidationError("Invalid Status (Current status: Maintenance).")
             elif initial_data == 'Suspended':
-                if data == 'On Loan':
+                if data == 'On Loan' or data == 'Available':
                     raise ValidationError("Invalid Status (Current status: Suspended).")
         return data
 
