@@ -13,6 +13,11 @@
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.BookID.label}}</label>
                                     {{form.BookID}}
                                 </div>
+                                    {% for message in messages %}
+                                        {%if "BookID" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                 <div style="display:flex; flex-direction: row">
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Title.label}}</label>
                                     {{form.Title}}
@@ -37,10 +42,20 @@
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.ISBN.label}}</label>
                                     {{form.ISBN}}
                                 </div>
+                                    {% for message in messages %}
+                                        {%if "ISBN" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                 <div style="display:flex; flex-direction: row">
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">Number of books:</label>
                                     <input type="number" name="number" id="number" min="1" max="99" required>
                                 </div>
+                                    {% for message in messages %}
+                                        {%if "Others" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                 <input type="text" name="action" id="action" style="display:none;" value ="submit" >
                                 <button type="submit" class="form-control" id="submit"> Submit </button>
 

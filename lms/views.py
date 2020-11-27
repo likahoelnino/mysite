@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.forms import ModelForm
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import timezone
 from lms.models import Book, BookInstance, BorrowRecord, Reserve
 from django.contrib import messages
@@ -13,31 +13,58 @@ import datetime
 from django.db.models import Count
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import ListView
 
-@csrf_exempt
-def index(request):
-    if request.method == 'POST':
-        search_text = request.POST['search']
-        q1 = Q(BookID__icontains=search_text)
-        q2 = Q(Author__icontains=search_text)
-        q3 = Q(Title__icontains=search_text)
-        q4 = Q(Publisher__icontains=search_text)
-        book_list = Book.objects.filter(q1 | q2 | q3 | q4)
-        title = 'Search result:'
-        return render(request, 'lms/index.html', {'book_list': book_list, 'title': title})
-    else:
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(days=30)
-        past30 = now - delta
-        q1 = Q(BorrowDate__gt=past30)
-        rating = BorrowRecord.objects.filter(q1).values('BookInstanceID__BookID') \
-                     .annotate(Count('BookInstanceID__BookID')) \
-                     .order_by('-BookInstanceID__BookID__count')[:10]
-        top10 = rating.values_list('BookInstanceID__BookID')
-        book_list = Book.objects.filter(BookID__in=top10)
-        title = 'Top 10 books in 30 days:'
-        return render(request, 'lms/index.html', {'book_list': book_list, 'title': title})
+class IndexListView(ListView):
 
+    template_name = 'lms/index.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        if self.request.GET.get('search'):
+            search_text = self.request.GET.get('search')
+            q1 = Q(BookID__icontains=search_text)
+            q2 = Q(Author__icontains=search_text)
+            q3 = Q(Title__icontains=search_text)
+            q4 = Q(Publisher__icontains=search_text)
+            book_list = Book.objects.filter(q1 | q2 | q3 | q4)
+            return book_list
+        else:
+            now = datetime.datetime.now()
+            delta = datetime.timedelta(days=30)
+            past30 = now - delta
+            q1 = Q(BorrowDate__gt=past30)
+            rating = BorrowRecord.objects.filter(q1).values('BookInstanceID__BookID') \
+                         .annotate(Count('BookInstanceID__BookID')) \
+                         .order_by('-BookInstanceID__BookID__count')[:10]
+            top10 = rating.values_list('BookInstanceID__BookID', flat=True)
+
+            book_list = []
+            for i in range(10):
+                book_list += Book.objects.filter(BookID=top10[i])
+
+            return book_list
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexListView, self).get_context_data(**kwargs)
+        books = self.get_queryset()
+        page = self.request.GET.get('page')
+        paginator = Paginator(books, self.paginate_by)
+        try:
+            books = paginator.page(page)
+        except PageNotAnInteger:
+            books = paginator.page(1)
+        except EmptyPage:
+            books = paginator.page(paginator.num_pages)
+
+        if self.request.GET.get('search'):
+            title = 'Search result:'
+        else:
+            title = 'Top 10 books in 30 days:'
+
+        context['book_list'] = books
+        context['title'] = title
+        return context
 
 def search_result_details(request):
     book_selected = request.POST['BookID']
@@ -67,11 +94,11 @@ def borrow(request):
         current_reserve = Reserve.objects.filter(q3 & q5).count()
         if BorrowRecord.objects.filter(q3 & q4 & q6).count() > 0:
             context = {
-                'msg': 'u hv overdue book, please return immediately'
+                'msg': 'Failed! You have overdue book(s), please return ASAP.'
             }
         elif current_borrow + current_reserve >= book_limit:
             context = {
-                'msg': 'reach total book limit'
+                'msg': 'Failed! Max borrow quota reached.'
             }
         elif BookInstance.objects.filter(q1 & q2).count() > 0:
             x = BookInstance.objects.filter(q1 & q2).values_list()[:1].get()[0]
@@ -84,11 +111,11 @@ def borrow(request):
                 DueDate=now + delta,
             )
             context = {
-                'msg': 'borrow success'
+                'msg': 'Success! You have borrowed ' + x + '.'
             }
         elif Reserve.objects.filter(q1 & q3 & q5).count() > 0:
             context = {
-                'msg': 'u hv reserved this book'
+                'msg': 'Failed! You already reserved this book.'
             }
         else:
             FK = Book.objects.get(BookID=book_selected)
@@ -98,7 +125,7 @@ def borrow(request):
                 ReserveDate=now,
             )
             context = {
-                'msg': 'u r in waiting list now'
+                'msg': 'Success! You are now in waiting list.'
             }
         return render(request, 'lms/notification.html', context)
 
@@ -116,6 +143,41 @@ def book_mgt(request):
     return render(request, 'lms/book_mgt.html', {'book_list': book_list})
 
 
+
+class BookMgtListView(ListView):
+
+    template_name = 'lms/book_mgt.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        if self.request.GET.get('search'):
+            search_text = self.request.GET.get('search')
+            q1 = Q(BookID__icontains=search_text)
+            q2 = Q(Author__icontains=search_text)
+            q3 = Q(Title__icontains=search_text)
+            q4 = Q(Publisher__icontains=search_text)
+            book_list = Book.objects.filter(q1 | q2 | q3 | q4)
+            return book_list
+        else:
+            book_list = Book.objects.all()
+            return book_list
+
+    def get_context_data(self, **kwargs):
+        context = super(BookMgtListView, self).get_context_data(**kwargs)
+        books = self.get_queryset()
+        page = self.request.GET.get('page')
+        paginator = Paginator(books, self.paginate_by)
+        try:
+            books = paginator.page(page)
+        except PageNotAnInteger:
+            books = paginator.page(1)
+        except EmptyPage:
+            books = paginator.page(paginator.num_pages)
+
+        context['book_list'] = books
+        return context
+
+
 def book_edit(request):
     if request.method == 'POST':
         book_selected = request.POST['BookID']
@@ -127,11 +189,18 @@ def book_edit(request):
                 'form': form, 'BookID': book_selected}
             return render(request, 'lms/book_edit.html', context)
         elif request.POST['action'] == "submit":
-            form = BookModelForm(request.POST, instance=item)
-            if form.is_valid():
-                form.save()
-            book_list = Book.objects.all()
-            return render(request, 'lms/book_mgt.html', {'book_list': book_list})
+            if Book.objects.filter(ISBN__iexact=request.POST['ISBN']).exclude(BookID = request.POST['BookID']).count() > 0:
+                messages.error(request, 'Error! The ISBN is already exists.', extra_tags='ISBN')
+                form = BookModelForm(request.POST)
+                context = {
+                    'form': form, 'BookID': request.POST['BookID']}
+                return render(request, 'lms/book_edit.html', context)
+            else:
+                form = BookModelForm(request.POST, instance=item)
+                if form.is_valid():
+                    form.save()
+                    book_list = Book.objects.all()
+                    return render(request, 'lms/book_mgt.html', {'book_list': book_list})
 
 
 def book_new(request):
@@ -142,12 +211,18 @@ def book_new(request):
                 'form': form}
             return render(request, 'lms/book_new.html', context)
         elif request.POST['action'] == "submit":
+            form = BookModelForm(request.POST)
+            error = False
+            context = {
+                'form': form}
             if Book.objects.filter(BookID__iexact=request.POST['BookID']).count() > 0:
-                context = {'msg': 'The BookID is already exists.'}
-            elif Book.objects.filter(ISBN__iexact=request.POST['ISBN']).count() > 0:
-                context = {'msg': 'The ISBN is already exists.'}
-            elif int(request.POST['number']) > 99:
-                context = {'Total number of books cannot be larger than 99.'}
+                messages.error(request, 'Error! The BookID is already exists.', extra_tags='BookID')
+                error = True
+            if Book.objects.filter(ISBN__iexact=request.POST['ISBN']).count() > 0:
+                messages.error(request, 'Error! The ISBN is already exists.', extra_tags='ISBN')
+                error = True
+            if error:
+                return render(request, 'lms/book_new.html', context)
             else:
                 form = BookModelForm(request.POST)
                 number = request.POST['number']
@@ -168,10 +243,8 @@ def book_new(request):
                     return render(request, 'lms/book_mgt.html', {'book_list': book_list})
                 else:
                     msg = form.errors
-                    context = {
-                        'msg': msg
-                    }
-            return render(request, 'lms/notification.html', context)
+                    messages.error(request, msg, extra_tags='Others')
+                    return render(request, 'lms/book_new.html', context)
 
 
 def bookinstance_mgt(request):
@@ -193,15 +266,15 @@ def bookinstance_edit(request):
             book_selected = request.POST["BookID"]
             number_exist = BookInstance.objects.filter(BookID=book_selected).count()
             if number_exist + int(number) > 99:
+                messages.error(request, 'Total number of books cannot larger than 99.', extra_tags='checkN')
+                book_selected = request.POST['BookID']
+                book_list = Book.objects.get(BookID=book_selected)
+                bookinstance_list = BookInstance.objects.filter(BookID=book_selected)
                 context = {
-                    'msg': 'Total number of books cannot be larger than 99.'
+                    'book_list': book_list,
+                    'bookinstance_list': bookinstance_list,
                 }
-                return render(request, 'lms/notification.html', context)
-            elif int(number) <= 0:
-                context = {
-                    'msg': 'Number of new books cannot be less than 1.'
-                }
-                return render(request, 'lms/notification.html', context)
+                return render(request, 'lms/bookinstance_mgt.html', context)
             else:
                 FK = Book.objects.get(BookID=book_selected)
                 for i in range(int(number)):
@@ -241,7 +314,13 @@ def bookinstance_edit(request):
                     }
                     return render(request, 'lms/bookinstance_mgt.html', context)
                 else:
-                    return render(request, 'lms/notification.html', {'msg': form.errors})
+                    msg = form.errors
+                    messages.error(request, msg, extra_tags='Others')
+                    form = BookInstanceModelForm(request.POST)
+                    context = {
+                        'form': form,
+                        'BookInstanceID': BookInstanceID}
+                    return render(request, 'lms/bookinstance_edit.html', context)
 
 
 def check_in(request):
@@ -333,24 +412,43 @@ def maintenance(request):
         context = {'bookinstance_list': bookinstance_list}
         return render(request, 'lms/maintenance.html', context)
 
-def record(request):
-    q1 = Q(UserID=request.user)
-    q2 = Q(ReleaseDate__isnull=True)
-    q3 = Q(ReturnDate__isnull=True)
-    reserve_list = Reserve.objects.filter(q1 & q2).order_by("-ReserveID")
-    borrow_list = BorrowRecord.objects.filter(q1).order_by("ReturnDate", "-BorrowID")
-    unreturn_list = BorrowRecord.objects.filter(q1 & q3)
-    unreturn_count = unreturn_list.count()
-    reserve_count = reserve_list.count()
-    remain_count = 10 - unreturn_count - reserve_count
-    context = {
-        'reserve_list': reserve_list,
-        'borrow_list': borrow_list,
-        'unreturn_count':unreturn_count,
-        'reserve_count':reserve_count,
-        'remain_count':remain_count,
-    }
-    return render(request, 'lms/record.html', context)
+class RecordListView(ListView):
+
+    template_name = 'lms/record.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        q1 = Q(UserID=self.request.user)
+        borrow_list = BorrowRecord.objects.filter(q1).order_by("ReturnDate", "-BorrowID")
+        return borrow_list
+
+    def get_context_data(self, **kwargs):
+        context = super(RecordListView, self).get_context_data(**kwargs)
+        q1 = Q(UserID=self.request.user)
+        q2 = Q(ReleaseDate__isnull=True)
+        q3 = Q(ReturnDate__isnull=True)
+        reserve_list = Reserve.objects.filter(q1 & q2).order_by("-ReserveID")
+        unreturn_list = BorrowRecord.objects.filter(q1 & q3)
+        unreturn_count = unreturn_list.count()
+        reserve_count = reserve_list.count()
+        remain_count = 10 - unreturn_count - reserve_count
+
+        books = self.get_queryset()
+        page = self.request.GET.get('page')
+        paginator = Paginator(books, self.paginate_by)
+        try:
+            books = paginator.page(page)
+        except PageNotAnInteger:
+            books = paginator.page(1)
+        except EmptyPage:
+            books = paginator.page(paginator.num_pages)
+
+        context['borrow_list'] = books
+        context['reserve_list'] = reserve_list
+        context['unreturn_count'] = unreturn_count
+        context['reserve_count'] = reserve_count
+        context['remain_count'] = remain_count
+        return context
 
 def reserve_cancel(request):
     if request.method == 'POST':
@@ -368,16 +466,19 @@ def extend(request):
         delta = datetime.timedelta(days=borrow_day)
         new_duedate = now + delta
         borrow_selected = request.POST['BorrowID']
-        q1 = Q(BorrowID = borrow_selected)
+        q1 = Q(BorrowID=borrow_selected)
         borrow_date = BorrowRecord.objects.filter(q1).values_list('BorrowDate', flat=True)[0]
-        old_duedate = BorrowRecord.objects.filter(q1).values_list('DueDate', flat=True)[0]
+        user = BorrowRecord.objects.filter(q1).values_list('UserID', flat=True)[0]
         book_selected = BorrowRecord.objects.filter(q1).values_list('BookInstanceID__BookID', flat=True)[0]
-        q2 = Q(BookID = book_selected)
-        q3 = Q(ReleaseDate__isnull = True)
+        q2 = Q(BookID=book_selected)
+        q3 = Q(ReleaseDate__isnull=True)
+        q4 = Q(UserID=user)
+        q5 = Q(ReturnDate__isnull=True)
+        check_overdue = min(BorrowRecord.objects.filter(q4 & q5).values_list('DueDate', flat=True))
         if Reserve.objects.filter(q2 & q3).count() > 0:
             context = {'msg': 'Failed! This book is reserved.'}
-        elif now > old_duedate:
-            context = {'msg': 'Failed! This book is overdue, please return ASAP.'}
+        elif now > check_overdue:
+            context = {'msg': 'Failed! You have book(s) overdue, please return overdue book(s) ASAP.'}
         elif borrow_date + datetime.timedelta(days=max_day) == new_duedate:
             context = {'msg': 'Failed! Max borrow days reached.'}
         elif borrow_date + datetime.timedelta(days=max_day) < new_duedate:
@@ -397,7 +498,6 @@ def picking_list(request, date):
     q1 = Q(BorrowDate = selected_date)
     borrow_list = BorrowRecord.objects.filter(q1).order_by('UserID')
     return render(request, 'lms/picking_list.html', {'borrow_list':borrow_list, 'selected_date':selected_date})
-
 
 
 # Create your views here.

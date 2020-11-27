@@ -56,7 +56,7 @@ class BookModelForm(forms.ModelForm):
         model = Book
         fields = '__all__'
         widgets = {
-            'BookID': forms.TextInput(attrs={'class': 'form-group col-md-8'}),
+            'BookID': forms.TextInput(attrs={'class': 'form-group col-md-8', 'Placeholder': 'The format is one character and 2 to 9 digits'}),
             'Title': forms.TextInput(attrs={'class': 'form-group col-md-8'}),
             'Language': forms.TextInput(attrs={'class': 'form-group col-md-8'}),
             'Author': forms.TextInput(attrs={'class': 'form-group col-md-8'}),

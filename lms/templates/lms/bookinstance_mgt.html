@@ -22,6 +22,11 @@
                                             </th>
                                          </form>
                                      </tr>
+                                     {% for message in messages %}
+                                        {%if "checkN" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                  </thead>
                                  <tbody></tbody>
                             </table>

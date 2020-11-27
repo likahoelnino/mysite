@@ -21,6 +21,11 @@
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.Status.label}}</label>
                                     {{form.Status}}
                                 </div>
+                                    {% for message in messages %}
+                                        {%if "Others" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                 <input type="text" name="action" id="action" style="display:none;" value ="submit" >
                                 <input type="text" name="BookInstanceID" id="BookInstanceID" style="display:none;" value = {{ BookInstanceID }} >
                                 <button type="submit" class="form-control" id="submit"> Submit </button>

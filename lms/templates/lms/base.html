@@ -57,8 +57,9 @@
 
                <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
+                         {% if user.is_authenticated %}
                          <li><a href="{% url 'index' %}" class="smoothScroll">Search</a></li>
-                         <li><a href="{% url 'record' %}" class="smoothScroll">My Record</a></li>
+                         {% endif %}
                          {% if user.is_staff %}
                          <li><a href="{% url 'book_mgt' %}" class="smoothScroll">Book</a></li>
                          <li><a href="{% url 'check_in' %}" class="smoothScroll">Check-in</a></li>
@@ -66,6 +67,7 @@
                          <li><a href="/lms/picking_list/today/" class="smoothScroll">Picking List</a></li>
                          {% endif %}
                          {% if user.is_authenticated %}
+                         <li><a href="{% url 'record' %}" class="smoothScroll">My Record</a></li>
                          <li><a href="{% url 'logout' %}" class="smoothScroll">Logout</a></li>
                          {% else %}
                          <li><a href="{% url 'login' %}">Login</a></li>

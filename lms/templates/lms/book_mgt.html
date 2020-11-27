@@ -23,7 +23,7 @@
                         </table>
                         </div>
                               <div>
-                                <form action="/lms/book_mgt/" method="POST" class="online-form"> {% csrf_token %}
+                                <form action="/lms/book_mgt/" method="GET" class="online-form">
                                     <input type="text" name="search" id="search" class="form-control" placeholder="BookID, Title, Author, Publisher" required>
                                     <button type="submit" class="form-control">Search</button>
                                 </form>
@@ -71,6 +71,10 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {% if is_paginated %}
+                            {% include "lms/_pagination.html" %}
+                        {% endif %}
 
                     </div>
                </div>

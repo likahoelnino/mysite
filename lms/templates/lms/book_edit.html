@@ -40,6 +40,11 @@
                                     <label class="form-group col-md-4" style="text-align: left; color: white;">{{ form.ISBN.label}}</label>
                                     {{form.ISBN}}
                                 </div>
+                                    {% for message in messages %}
+                                        {%if "ISBN" in message.tags %}
+                                                <a class="form-group col-md-8" style="text-align: left; color: yellow;">{{ message }}</a><br><br>
+                                        {% endif %}
+                                    {% endfor %}
                                 <input type="text" name="action" id="action" style="display:none;" value ="submit" >
                                 <input type="text" name="BookID" id="BookID" style="display:none;" value = {{ BookID }} >
                                 <button type="submit" class="form-control" id="submit"> Submit </button>

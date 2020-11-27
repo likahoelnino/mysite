@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-import re
+import re, datetime
 from django.core.validators import RegexValidator
 
 
@@ -33,7 +33,6 @@ class Book(models.Model):
             return User.objects.filter(id = y).values_list("username", flat=True)[0]
         else:
             return ""
-
 
 class BookInstance(models.Model):
     BookInstanceID = models.CharField(max_length=64, unique=True, primary_key=True)
@@ -78,6 +77,15 @@ class BorrowRecord(models.Model):
     def __str__(self):
         return f'{self.BorrowID} ({self.BookInstanceID}-{self.UserID})'
 
+    def IsOverdue(self):
+        now = datetime.datetime.now().date()
+        if self.ReturnDate is None:
+            if self.DueDate < now:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 class Reserve(models.Model):
     ReserveID = models.AutoField(primary_key=True)

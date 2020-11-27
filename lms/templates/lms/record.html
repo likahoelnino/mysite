@@ -20,7 +20,7 @@
                                         <th>Reserve ID</th>
                                         <th>Book ID</th>
                                         <th>Reserve Date</th>
-                                        <th>Waiting list</th>
+                                        <th>Position</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -57,7 +57,11 @@
                                 </thead>
                                 <tbody>
                                 {% for borrow in borrow_list %}
+                                    {% if borrow.IsOverdue %}
+                                    <tr style="text-align: left; color: yellow;">
+                                    {% else %}
                                     <tr style="text-align: left; color: white;">
+                                    {% endif %}
                                         <td>{{ borrow.BorrowID }}</td>
                                         <td>{{ borrow.BookInstanceID_id }}</td>
                                         <td>{{ borrow.BorrowDate }}</td>
@@ -76,6 +80,10 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {% if is_paginated %}
+                            {% include "lms/_pagination.html" %}
+                        {% endif %}
                     </div>
                </div>
           </div>
